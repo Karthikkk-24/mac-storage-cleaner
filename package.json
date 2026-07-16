@@ -1,0 +1,16 @@
+{
+  "name": "mac-storage-cleaner",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Local Mac storage cleaner — scan safe junk categories and reclaim disk space",
+  "scripts": {
+    "dev": "pnpm run --parallel --filter @msc/server --filter @msc/web dev",
+    "build": "pnpm run --filter @msc/shared build && pnpm run --filter @msc/server build && pnpm run --filter @msc/web build",
+    "test": "pnpm run --filter @msc/server test",
+    "start": "pnpm run --filter @msc/server start"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.18.3"
+}
