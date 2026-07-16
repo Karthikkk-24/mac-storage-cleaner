@@ -1,29 +1,36 @@
-import { execFile } from "node:child_process";
-import { promisify } from "node:util";
+import fs from "node:fs/promises";
 import type { DiskInfo } from "@msc/shared";
 
-const execFileAsync = promisify(execFile);
-
+/**
+ * macOS APFS: `df /` is the sealed system snapshot and under-reports "Used"
+ * (~system only). Prefer the Data volume, then fall back to total − free so
+ * the UI numbers always add up.
+ */
 export async function getDiskInfo(): Promise<DiskInfo> {
-  // df -kP / — portable-ish on macOS
-  const { stdout } = await execFileAsync("df", ["-kP", "/"]);
-  const lines = stdout.trim().split("\n");
-  const data = lines[lines.length - 1];
-  if (!data) {
-    throw new Error("Unable to parse df output");
+  const candidates = ["/System/Volumes/Data", "/"];
+
+  for (const mountPoint of candidates) {
+    try {
+      const s = await fs.statfs(mountPoint);
+      const blockSize = Number(s.bsize);
+      const totalBytes = Number(s.blocks) * blockSize;
+      const freeBytes = Number(s.bavail) * blockSize;
+      // Always derive used from capacity − free so APFS quirks don't show
+      // "12 GB used of 228 GB" with only 6 GB free.
+      const usedBytes = Math.max(0, totalBytes - freeBytes);
+
+      if (totalBytes > 0) {
+        return {
+          totalBytes,
+          freeBytes,
+          usedBytes,
+          mountPoint,
+        };
+      }
+    } catch {
+      // try next candidate
+    }
   }
 
-  // Filesystem 1024-blocks Used Available Capacity Mounted on
-  const parts = data.split(/\s+/);
-  const totalKb = parseInt(parts[1] ?? "0", 10);
-  const usedKb = parseInt(parts[2] ?? "0", 10);
-  const availKb = parseInt(parts[3] ?? "0", 10);
-  const mountPoint = parts[5] ?? "/";
-
-  return {
-    totalBytes: totalKb * 1024,
-    usedBytes: usedKb * 1024,
-    freeBytes: availKb * 1024,
-    mountPoint,
-  };
+  throw new Error("Unable to read disk statistics");
 }
