@@ -104,6 +104,21 @@ describe("isPathSafeToDelete", () => {
     expect(isPathSafeToDelete("/tmp/user-temp-file", ctx).safe).toBe(true);
   });
 
+  it("allows Simulator caches and DeviceSupport", () => {
+    expect(
+      isPathSafeToDelete(
+        "/Users/testuser/Library/Developer/CoreSimulator/Caches/dyld",
+        ctx,
+      ).safe,
+    ).toBe(true);
+    expect(
+      isPathSafeToDelete(
+        "/Users/testuser/Library/Developer/Xcode/iOS DeviceSupport/18.0",
+        ctx,
+      ).safe,
+    ).toBe(true);
+  });
+
   it("rejects paths under home but outside allowlist", () => {
     expect(isPathSafeToDelete("/Users/testuser/code/project", ctx).safe).toBe(
       false,

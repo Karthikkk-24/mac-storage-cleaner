@@ -22,8 +22,6 @@ export const CATEGORY_DEFINITIONS: CategoryDefinition[] = [
     label: CATEGORY_LABELS.user_caches,
     roots: (home) => [path.join(home, "Library", "Caches")],
     listChildren: true,
-    // Yarn/Homebrew/pip/Chrome/Safari have dedicated categories — still OK under user_caches
-    // but we exclude CloudKit / keychain-adjacent if present
     excludeBasenames: ["CloudKit", "com.apple.Keychains"],
   },
   {
@@ -31,6 +29,7 @@ export const CATEGORY_DEFINITIONS: CategoryDefinition[] = [
     label: CATEGORY_LABELS.user_logs,
     roots: (home) => [path.join(home, "Library", "Logs")],
     listChildren: true,
+    excludeBasenames: ["CoreSimulator"],
   },
   {
     id: "tmp",
@@ -43,14 +42,6 @@ export const CATEGORY_DEFINITIONS: CategoryDefinition[] = [
     id: "trash",
     label: CATEGORY_LABELS.trash,
     roots: (home) => [path.join(home, ".Trash")],
-    listChildren: true,
-  },
-  {
-    id: "xcode_derived",
-    label: CATEGORY_LABELS.xcode_derived,
-    roots: (home) => [
-      path.join(home, "Library", "Developer", "Xcode", "DerivedData"),
-    ],
     listChildren: true,
   },
   {
@@ -104,6 +95,44 @@ export const CATEGORY_DEFINITIONS: CategoryDefinition[] = [
       path.join(home, "Library", "Caches", "com.apple.Safari"),
     ],
     listChildren: false,
+  },
+  {
+    id: "xcode_derived",
+    label: CATEGORY_LABELS.xcode_derived,
+    roots: (home) => [
+      path.join(home, "Library", "Developer", "Xcode", "DerivedData"),
+    ],
+    listChildren: true,
+  },
+  {
+    id: "simulator_caches",
+    label: CATEGORY_LABELS.simulator_caches,
+    roots: (home) => [
+      path.join(home, "Library", "Developer", "CoreSimulator", "Caches"),
+    ],
+    listChildren: true,
+  },
+  {
+    id: "simulator_logs",
+    label: CATEGORY_LABELS.simulator_logs,
+    roots: (home) => [path.join(home, "Library", "Logs", "CoreSimulator")],
+    listChildren: true,
+  },
+  {
+    id: "ios_device_support",
+    label: CATEGORY_LABELS.ios_device_support,
+    roots: (home) => [
+      path.join(home, "Library", "Developer", "Xcode", "iOS DeviceSupport"),
+    ],
+    listChildren: true,
+  },
+  {
+    id: "watchos_device_support",
+    label: CATEGORY_LABELS.watchos_device_support,
+    roots: (home) => [
+      path.join(home, "Library", "Developer", "Xcode", "watchOS DeviceSupport"),
+    ],
+    listChildren: true,
   },
 ];
 

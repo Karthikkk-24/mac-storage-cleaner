@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import type { CategoryId, CategoryResult, ScanItem } from "@msc/shared";
+import { CATEGORY_SECTION } from "@msc/shared";
 import {
   defaultSafetyContext,
   isPathSafeToDelete,
@@ -263,6 +264,7 @@ async function scanCategory(
   return {
     id: def.id,
     label: def.label,
+    section: CATEGORY_SECTION[def.id],
     totalBytes,
     itemCount: items.length,
     items,

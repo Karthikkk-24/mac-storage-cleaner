@@ -5,7 +5,6 @@ export const CategoryIdSchema = z.enum([
   "user_logs",
   "tmp",
   "trash",
-  "xcode_derived",
   "npm_cache",
   "yarn_cache",
   "pnpm_cache",
@@ -13,16 +12,23 @@ export const CategoryIdSchema = z.enum([
   "pip_cache",
   "chrome_cache",
   "safari_cache",
+  "xcode_derived",
+  "simulator_caches",
+  "simulator_logs",
+  "ios_device_support",
+  "watchos_device_support",
 ]);
 
 export type CategoryId = z.infer<typeof CategoryIdSchema>;
+
+export const CategorySectionSchema = z.enum(["general", "developer"]);
+export type CategorySection = z.infer<typeof CategorySectionSchema>;
 
 export const CATEGORY_LABELS: Record<CategoryId, string> = {
   user_caches: "App caches",
   user_logs: "User logs",
   tmp: "Temp files",
   trash: "Trash",
-  xcode_derived: "Xcode DerivedData",
   npm_cache: "npm cache",
   yarn_cache: "Yarn cache",
   pnpm_cache: "pnpm cache",
@@ -30,6 +36,46 @@ export const CATEGORY_LABELS: Record<CategoryId, string> = {
   pip_cache: "pip cache",
   chrome_cache: "Chrome cache",
   safari_cache: "Safari cache",
+  xcode_derived: "Xcode DerivedData",
+  simulator_caches: "iOS Simulator caches",
+  simulator_logs: "Simulator logs",
+  ios_device_support: "iOS DeviceSupport",
+  watchos_device_support: "watchOS DeviceSupport",
+};
+
+export const CATEGORY_SECTION: Record<CategoryId, CategorySection> = {
+  user_caches: "general",
+  user_logs: "general",
+  tmp: "general",
+  trash: "general",
+  npm_cache: "general",
+  yarn_cache: "general",
+  pnpm_cache: "general",
+  homebrew_cache: "general",
+  pip_cache: "general",
+  chrome_cache: "general",
+  safari_cache: "general",
+  xcode_derived: "developer",
+  simulator_caches: "developer",
+  simulator_logs: "developer",
+  ios_device_support: "developer",
+  watchos_device_support: "developer",
+};
+
+export const SECTION_META: Record<
+  CategorySection,
+  { title: string; description: string }
+> = {
+  general: {
+    title: "System & app junk",
+    description:
+      "Caches, logs, temp files, Trash, and package-manager downloads you can safely regenerate.",
+  },
+  developer: {
+    title: "Simulator & Xcode",
+    description:
+      "DerivedData, Simulator caches/logs, and old DeviceSupport folders. Regenerated when you build or plug in a device.",
+  },
 };
 
 export const ScanItemSchema = z.object({
@@ -47,6 +93,7 @@ export type ScanItem = z.infer<typeof ScanItemSchema>;
 export const CategoryResultSchema = z.object({
   id: CategoryIdSchema,
   label: z.string(),
+  section: CategorySectionSchema,
   totalBytes: z.number().nonnegative(),
   itemCount: z.number().int().nonnegative(),
   items: z.array(ScanItemSchema),
