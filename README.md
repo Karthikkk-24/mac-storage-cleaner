@@ -16,10 +16,15 @@ Local TypeScript app that scans **only safe, regenerable junk** on your Mac and 
 | User logs | `~/Library/Logs/*` |
 | Temp files (7+ days old) | `$TMPDIR`, `/tmp` (your files only) |
 | Trash | `~/.Trash/*` |
-| Xcode DerivedData | `~/Library/Developer/Xcode/DerivedData` |
 | npm / Yarn / pnpm caches | `~/.npm/_cacache`, Yarn & pnpm cache dirs |
 | Homebrew / pip caches | `~/Library/Caches/Homebrew`, `pip` |
 | Chrome / Safari caches | Cache dirs only (not cookies/profiles) |
+| Xcode DerivedData | `~/Library/Developer/Xcode/DerivedData` |
+| iOS Simulator caches | `~/Library/Developer/CoreSimulator/Caches` |
+| Simulator logs | `~/Library/Logs/CoreSimulator` |
+| iOS / watchOS DeviceSupport | `~/Library/Developer/Xcode/* DeviceSupport` |
+
+Results are grouped in the UI under **System & app junk** and **Simulator & Xcode**.
 
 ### Never touched
 

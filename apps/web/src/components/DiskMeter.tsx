@@ -8,10 +8,10 @@ type Props = {
 export function DiskMeter({ disk, loading }: Props) {
   if (loading || !disk) {
     return (
-      <div className="rounded-2xl bg-white/60 p-6 shadow-sm ring-1 ring-black/5 backdrop-blur">
-        <div className="h-4 w-40 animate-pulse rounded bg-black/10" />
-        <div className="mt-4 h-3 w-full animate-pulse rounded-full bg-black/10" />
-        <div className="mt-3 h-4 w-56 animate-pulse rounded bg-black/10" />
+      <div className="neo-border neo-shadow rounded-none bg-[var(--color-paper-2)] p-5">
+        <div className="h-4 w-40 animate-pulse bg-black/20" />
+        <div className="mt-4 h-5 w-full animate-pulse bg-black/15" />
+        <div className="mt-3 h-4 w-56 animate-pulse bg-black/15" />
       </div>
     );
   }
@@ -20,22 +20,26 @@ export function DiskMeter({ disk, loading }: Props) {
     100,
     Math.round((disk.usedBytes / disk.totalBytes) * 100),
   );
-  const freePct = 100 - usedPct;
 
   return (
-    <div className="rounded-2xl bg-white/70 p-6 shadow-sm ring-1 ring-black/5 backdrop-blur">
-      <div className="flex items-baseline justify-between gap-4">
-        <p className="text-sm font-medium tracking-wide text-[var(--color-ink-muted)] uppercase">
-          Macintosh HD
-        </p>
-        <p className="font-[family-name:var(--font-display)] text-3xl text-[var(--color-ink)]">
-          {formatBytes(disk.freeBytes)}{" "}
-          <span className="text-lg text-[var(--color-ink-muted)]">free</span>
-        </p>
+    <div className="neo-border neo-shadow rounded-none bg-white p-5">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-xs font-bold tracking-[0.15em] uppercase">
+            Disk usage
+          </p>
+          <p className="mt-1 text-3xl font-bold tracking-tight">
+            {formatBytes(disk.freeBytes)}{" "}
+            <span className="text-base font-semibold opacity-60">free</span>
+          </p>
+        </div>
+        <span className="neo-border bg-[var(--color-accent-2)] px-3 py-1 text-sm font-bold">
+          {usedPct}% used
+        </span>
       </div>
 
       <div
-        className="mt-5 h-3.5 overflow-hidden rounded-full bg-[var(--color-surface-2)]"
+        className="neo-border mt-4 h-6 overflow-hidden bg-[var(--color-paper)]"
         role="meter"
         aria-valuenow={usedPct}
         aria-valuemin={0}
@@ -43,25 +47,15 @@ export function DiskMeter({ disk, loading }: Props) {
         aria-label="Disk usage"
       >
         <div
-          className="h-full rounded-full bg-[var(--color-meter-used)] transition-[width] duration-700 ease-out"
+          className="h-full bg-[var(--color-accent)] transition-[width] duration-500"
           style={{ width: `${usedPct}%` }}
         />
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-[var(--color-ink-muted)]">
-        <span>
-          <span className="font-medium text-[var(--color-ink)]">
-            {formatBytes(disk.usedBytes)}
-          </span>{" "}
-          used ({usedPct}%)
-        </span>
-        <span>
-          <span className="font-medium text-[var(--color-accent)]">
-            {formatBytes(disk.freeBytes)}
-          </span>{" "}
-          free ({freePct}%)
-        </span>
-        <span>of {formatBytes(disk.totalBytes)}</span>
+      <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm font-medium">
+        <span>{formatBytes(disk.usedBytes)} used</span>
+        <span>{formatBytes(disk.freeBytes)} free</span>
+        <span className="opacity-60">of {formatBytes(disk.totalBytes)}</span>
       </div>
     </div>
   );

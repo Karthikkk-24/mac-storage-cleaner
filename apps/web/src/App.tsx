@@ -1,4 +1,9 @@
-import { formatBytes, type CategoryResult, type ScanItem } from "@msc/shared";
+import {
+  CATEGORY_SECTION,
+  formatBytes,
+  type CategoryResult,
+  type ScanItem,
+} from "@msc/shared";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   deleteItems,
@@ -115,7 +120,12 @@ export default function App() {
           },
         }));
       } else if (event.type === "complete") {
-        setCategories(event.categories);
+        setCategories(
+          event.categories.map((c) => ({
+            ...c,
+            section: c.section ?? CATEGORY_SECTION[c.id],
+          })),
+        );
         setScanning(false);
         setShowFdaHelp(event.categories.some((c) => c.permissionDenied));
         refreshDisk();
@@ -145,7 +155,6 @@ export default function App() {
       );
       setConfirmOpen(false);
       setSelected(new Set());
-      // Remove deleted items from UI
       const deletedIds = new Set(
         result.results.filter((r) => r.ok).map((r) => r.id),
       );
@@ -169,24 +178,26 @@ export default function App() {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-3xl flex-col px-4 pb-28 pt-10 sm:px-6">
+    <div className="mx-auto flex min-h-screen max-w-3xl flex-col px-4 pb-32 pt-8 sm:px-6">
       <header className="mb-8">
-        <p className="text-sm font-medium tracking-[0.2em] text-[var(--color-accent)] uppercase">
-          Local · Safe categories only
-        </p>
-        <h1 className="mt-1 font-[family-name:var(--font-display)] text-4xl tracking-tight sm:text-5xl">
-          Mac Storage Cleaner
+        <div className="neo-border neo-shadow inline-block bg-[var(--color-accent-2)] px-3 py-1 text-xs font-black tracking-[0.12em] uppercase">
+          Local · Safe only
+        </div>
+        <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">
+          Mac Storage
+          <br />
+          Cleaner
         </h1>
-        <p className="mt-3 max-w-xl text-[var(--color-ink-muted)]">
-          Find regenerable caches, logs, and temp files — then move them to
-          Trash. System files and personal folders are never touched.
+        <p className="mt-3 max-w-lg text-sm font-medium leading-relaxed opacity-70">
+          Find regenerable junk — including Simulator & Xcode caches — then move
+          it to Trash. System files and personal folders stay untouched.
         </p>
       </header>
 
       {healthOk === false && (
-        <div className="mb-6 rounded-xl bg-red-50 px-4 py-3 text-sm text-[var(--color-danger)] ring-1 ring-red-200">
-          API unreachable or not running on macOS. Start the server with{" "}
-          <code className="rounded bg-black/5 px-1">pnpm dev</code>.
+        <div className="neo-border neo-shadow mb-6 bg-[var(--color-danger)] px-4 py-3 text-sm font-bold text-white">
+          API unreachable or not on macOS. Start with{" "}
+          <code className="bg-black/20 px-1">pnpm dev</code>.
         </div>
       )}
 
@@ -198,7 +209,7 @@ export default function App() {
             type="button"
             onClick={startScan}
             disabled={healthOk === false}
-            className="rounded-xl bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--color-accent-hover)] disabled:opacity-50"
+            className="neo-border neo-shadow neo-press bg-[var(--color-accent)] px-5 py-3 text-sm font-black uppercase tracking-wide disabled:opacity-40"
           >
             Scan for junk
           </button>
@@ -206,32 +217,32 @@ export default function App() {
           <button
             type="button"
             onClick={cancelScan}
-            className="rounded-xl bg-[var(--color-ink)] px-5 py-2.5 text-sm font-semibold text-white"
+            className="neo-border neo-shadow neo-press bg-white px-5 py-3 text-sm font-black uppercase tracking-wide"
           >
             Cancel scan
           </button>
         )}
         {scanning && (
-          <span className="text-sm text-[var(--color-ink-muted)]">
-            Scanning safe categories…
-          </span>
+          <span className="text-sm font-bold opacity-60">Scanning…</span>
         )}
         {scanError && (
-          <span className="text-sm text-[var(--color-danger)]">{scanError}</span>
+          <span className="text-sm font-bold text-[var(--color-danger)]">
+            {scanError}
+          </span>
         )}
       </div>
 
       {(showFdaHelp || hasPermissionIssues) && (
-        <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-[var(--color-warn)]">
-          <p className="font-semibold">Full Disk Access may be required</p>
-          <p className="mt-1">
+        <div className="neo-border neo-shadow-sm mt-4 bg-[var(--color-paper-2)] px-4 py-3 text-sm font-medium">
+          <p className="font-black">Full Disk Access may be required</p>
+          <p className="mt-1 opacity-80">
             System Settings → Privacy & Security → Full Disk Access → enable for
             Terminal (or the app running Node). Then re-scan.
           </p>
         </div>
       )}
 
-      <div className="mt-8">
+      <div className="mt-10">
         <CategoryList
           categories={categories}
           selected={selected}
@@ -243,19 +254,19 @@ export default function App() {
       </div>
 
       {selected.size > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-black/10 bg-[var(--color-surface)]/95 px-4 py-4 backdrop-blur">
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t-[3px] border-black bg-[var(--color-paper)] px-4 py-4">
           <div className="mx-auto flex max-w-3xl items-center justify-between gap-4">
             <div>
-              <p className="text-sm text-[var(--color-ink-muted)]">
+              <p className="text-xs font-bold uppercase tracking-wide opacity-60">
                 {selected.size} selected
               </p>
-              <p className="font-[family-name:var(--font-display)] text-2xl">
+              <p className="text-2xl font-bold tracking-tight">
                 {formatBytes(selectedBytes)}
               </p>
             </div>
             <button
               type="button"
-              className="rounded-xl bg-[var(--color-danger)] px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-800"
+              className="neo-border neo-shadow neo-press bg-[var(--color-danger)] px-5 py-3 text-sm font-black uppercase tracking-wide text-white"
               onClick={() => setConfirmOpen(true)}
             >
               Delete selected
@@ -274,7 +285,7 @@ export default function App() {
       />
 
       {toast && (
-        <div className="fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[var(--color-ink)] px-5 py-2.5 text-sm text-white shadow-lg">
+        <div className="neo-border neo-shadow fixed bottom-28 left-1/2 z-50 -translate-x-1/2 bg-[var(--color-ink)] px-5 py-2.5 text-sm font-bold text-white">
           {toast}
         </div>
       )}

@@ -21,29 +21,24 @@ export function ConfirmModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="confirm-title"
     >
-      <div className="w-full max-w-md rounded-2xl bg-[var(--color-surface)] p-6 shadow-xl ring-1 ring-black/10">
-        <h2
-          id="confirm-title"
-          className="font-[family-name:var(--font-display)] text-2xl"
-        >
+      <div className="neo-border neo-shadow w-full max-w-md bg-[var(--color-paper)] p-6">
+        <h2 id="confirm-title" className="text-2xl font-bold tracking-tight">
           Move to Trash?
         </h2>
-        <p className="mt-3 text-[var(--color-ink-muted)]">
+        <p className="mt-3 text-sm font-medium leading-relaxed">
           {itemCount} item{itemCount === 1 ? "" : "s"} (
-          <strong className="text-[var(--color-ink)]">
-            {formatBytes(totalBytes)}
-          </strong>
-          ) will be moved to Trash. You can restore them from Trash if needed.
+          <strong>{formatBytes(totalBytes)}</strong>) will be moved to Trash.
+          You can restore them from Trash if needed.
         </p>
         <div className="mt-6 flex justify-end gap-3">
           <button
             type="button"
-            className="rounded-lg px-4 py-2 text-sm font-medium text-[var(--color-ink-muted)] hover:bg-black/5"
+            className="neo-border neo-shadow-sm neo-press bg-white px-4 py-2 text-sm font-bold"
             onClick={onCancel}
             disabled={deleting}
           >
@@ -51,7 +46,7 @@ export function ConfirmModal({
           </button>
           <button
             type="button"
-            className="rounded-lg bg-[var(--color-danger)] px-4 py-2 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-60"
+            className="neo-border neo-shadow-sm neo-press bg-[var(--color-danger)] px-4 py-2 text-sm font-bold text-white"
             onClick={onConfirm}
             disabled={deleting}
           >
