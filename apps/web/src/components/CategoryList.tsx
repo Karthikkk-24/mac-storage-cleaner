@@ -20,11 +20,16 @@ type Props = {
   >;
 };
 
-const SECTION_ORDER: CategorySection[] = ["general", "developer"];
+const SECTION_ORDER: CategorySection[] = [
+  "general",
+  "developer",
+  "installers",
+];
 
 const SECTION_COLORS: Record<CategorySection, string> = {
   general: "bg-[var(--color-accent-3)]",
   developer: "bg-[var(--color-accent)]",
+  installers: "bg-[var(--color-paper-2)]",
 };
 
 function CategorySectionBlock({
@@ -205,7 +210,11 @@ export function CategoryList({
                   <span
                     className={`neo-border px-2 py-0.5 text-xs font-black uppercase tracking-wide ${SECTION_COLORS[sectionId]}`}
                   >
-                    {sectionId === "developer" ? "Dev" : "General"}
+                    {sectionId === "developer"
+                      ? "Dev"
+                      : sectionId === "installers"
+                        ? "Review"
+                        : "General"}
                   </span>
                   <h2 className="text-xl font-bold tracking-tight">
                     {meta.title}

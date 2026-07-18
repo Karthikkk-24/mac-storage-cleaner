@@ -23,8 +23,11 @@ Local TypeScript app that scans **only safe, regenerable junk** on your Mac and 
 | iOS Simulator caches | `~/Library/Developer/CoreSimulator/Caches` |
 | Simulator logs | `~/Library/Logs/CoreSimulator` |
 | iOS / watchOS DeviceSupport | `~/Library/Developer/Xcode/* DeviceSupport` |
+| Installers & executables | `~/Downloads`, `~/Desktop` — `.dmg`, `.pkg`, `.exe`, `.msi`, `.iso`, `.apk`, `.ipa`, `.app`, and extensionless `+x` binaries |
 
-Results are grouped in the UI under **System & app junk** and **Simulator & Xcode**.
+Results are grouped in the UI under **System & app junk**, **Simulator & Xcode**, and **Installers & executables** (review before deleting).
+
+Only matching installer/executable names are deletable under Downloads/Desktop — PDFs, photos, and other documents stay denied.
 
 ### Never touched
 

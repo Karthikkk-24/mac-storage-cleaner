@@ -17,12 +17,41 @@ export const CategoryIdSchema = z.enum([
   "simulator_logs",
   "ios_device_support",
   "watchos_device_support",
+  "installers",
 ]);
 
 export type CategoryId = z.infer<typeof CategoryIdSchema>;
 
-export const CategorySectionSchema = z.enum(["general", "developer"]);
+export const CategorySectionSchema = z.enum([
+  "general",
+  "developer",
+  "installers",
+]);
 export type CategorySection = z.infer<typeof CategorySectionSchema>;
+
+/** Disk images, installers, and common executable download types. */
+export const INSTALLER_EXTENSIONS = [
+  ".dmg",
+  ".pkg",
+  ".mpkg",
+  ".exe",
+  ".msi",
+  ".msix",
+  ".iso",
+  ".img",
+  ".apk",
+  ".ipa",
+  ".app",
+  ".bat",
+  ".cmd",
+  ".com",
+  ".scr",
+  ".deb",
+  ".rpm",
+  ".appimage",
+  ".run",
+  ".bin",
+] as const;
 
 export const CATEGORY_LABELS: Record<CategoryId, string> = {
   user_caches: "App caches",
@@ -41,6 +70,7 @@ export const CATEGORY_LABELS: Record<CategoryId, string> = {
   simulator_logs: "Simulator logs",
   ios_device_support: "iOS DeviceSupport",
   watchos_device_support: "watchOS DeviceSupport",
+  installers: "Installers & executables",
 };
 
 export const CATEGORY_SECTION: Record<CategoryId, CategorySection> = {
@@ -60,6 +90,7 @@ export const CATEGORY_SECTION: Record<CategoryId, CategorySection> = {
   simulator_logs: "developer",
   ios_device_support: "developer",
   watchos_device_support: "developer",
+  installers: "installers",
 };
 
 export const SECTION_META: Record<
@@ -75,6 +106,11 @@ export const SECTION_META: Record<
     title: "Simulator & Xcode",
     description:
       "DerivedData, Simulator caches/logs, and old DeviceSupport folders. Regenerated when you build or plug in a device.",
+  },
+  installers: {
+    title: "Installers & executables",
+    description:
+      "Disk images and installers in Downloads/Desktop (.dmg, .pkg, .exe, and similar). Review before deleting — you may still need them.",
   },
 };
 

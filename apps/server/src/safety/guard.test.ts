@@ -30,7 +30,7 @@ describe("isPathSafeToDelete", () => {
     );
   });
 
-  it("rejects user Documents / Desktop / Downloads", () => {
+  it("rejects user Documents and non-installer Desktop/Downloads files", () => {
     expect(
       isPathSafeToDelete("/Users/testuser/Documents/report.pdf", ctx).safe,
     ).toBe(false);
@@ -38,8 +38,30 @@ describe("isPathSafeToDelete", () => {
       isPathSafeToDelete("/Users/testuser/Desktop/notes.txt", ctx).safe,
     ).toBe(false);
     expect(
-      isPathSafeToDelete("/Users/testuser/Downloads/installer.dmg", ctx).safe,
+      isPathSafeToDelete("/Users/testuser/Downloads/report.pdf", ctx).safe,
     ).toBe(false);
+  });
+
+  it("allows installer files under Downloads and Desktop", () => {
+    expect(
+      isPathSafeToDelete("/Users/testuser/Downloads/installer.dmg", ctx).safe,
+    ).toBe(true);
+    expect(
+      isPathSafeToDelete("/Users/testuser/Downloads/Setup.exe", ctx).safe,
+    ).toBe(true);
+    expect(
+      isPathSafeToDelete("/Users/testuser/Desktop/App.pkg", ctx).safe,
+    ).toBe(true);
+    expect(
+      isPathSafeToDelete("/Users/testuser/Downloads/Foo.app", ctx).safe,
+    ).toBe(true);
+  });
+
+  it("rejects deleting Downloads or Desktop themselves", () => {
+    expect(isPathSafeToDelete("/Users/testuser/Downloads", ctx).safe).toBe(
+      false,
+    );
+    expect(isPathSafeToDelete("/Users/testuser/Desktop", ctx).safe).toBe(false);
   });
 
   it("rejects secret/config dirs", () => {

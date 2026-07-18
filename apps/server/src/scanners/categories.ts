@@ -10,6 +10,13 @@ export type CategoryDefinition = {
   roots: (home: string, tmpdir: string) => string[];
   /** If true, list immediate children as items instead of the root itself. */
   listChildren: boolean;
+  /**
+   * Recursively find installer/executable files under roots.
+   * When set, listChildren / whole-root modes are ignored.
+   */
+  matchInstallers?: boolean;
+  /** Max directory depth for matchInstallers walks (root = 0). */
+  maxDepth?: number;
   /** Optional minimum age in days (mtime). */
   minAgeDays?: number;
   /** Skip these basename patterns under the roots. */
@@ -133,6 +140,17 @@ export const CATEGORY_DEFINITIONS: CategoryDefinition[] = [
       path.join(home, "Library", "Developer", "Xcode", "watchOS DeviceSupport"),
     ],
     listChildren: true,
+  },
+  {
+    id: "installers",
+    label: CATEGORY_LABELS.installers,
+    roots: (home) => [
+      path.join(home, "Downloads"),
+      path.join(home, "Desktop"),
+    ],
+    listChildren: false,
+    matchInstallers: true,
+    maxDepth: 4,
   },
 ];
 

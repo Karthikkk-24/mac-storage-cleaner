@@ -7,7 +7,9 @@ import type { CategoryId, CategoryResult, ScanItem } from "@msc/shared";
 import { CATEGORY_SECTION } from "@msc/shared";
 import {
   defaultSafetyContext,
+  isInstallerFileName,
   isPathSafeToDelete,
+  isUnderInstallerScanRoot,
   type SafetyContext,
 } from "../safety/guard.js";
 import { itemIdForPath } from "../session.js";
@@ -16,6 +18,14 @@ import {
   expandRoots,
   type CategoryDefinition,
 } from "./categories.js";
+
+const SKIP_DIR_NAMES = new Set([
+  "node_modules",
+  ".git",
+  ".Trash",
+  "Library",
+  "Applications",
+]);
 
 const execFileAsync = promisify(execFile);
 
@@ -142,7 +152,117 @@ async function scanCategory(
       if (signal?.aborted) break;
       if (!(await pathExists(root))) continue;
 
-      // Root itself must be under allowlist
+      if (def.matchInstallers) {
+        if (!isUnderInstallerScanRoot(root, ctx)) continue;
+
+        const maxDepth = def.maxDepth ?? 4;
+        const queue: { dir: string; depth: number }[] = [
+          { dir: root, depth: 0 },
+        ];
+
+        while (queue.length > 0) {
+          if (signal?.aborted) break;
+          const { dir, depth } = queue.shift()!;
+
+          let entries;
+          try {
+            entries = await fs.readdir(dir, { withFileTypes: true });
+          } catch (err) {
+            const code = (err as NodeJS.ErrnoException).code;
+            if (code === "EPERM" || code === "EACCES") {
+              permissionDenied = true;
+              error = `Permission denied reading ${dir}`;
+            }
+            continue;
+          }
+
+          for (const ent of entries) {
+            if (signal?.aborted) break;
+            if (ent.name === "." || ent.name === "..") continue;
+            if (ent.name.startsWith(".")) continue;
+            if (SKIP_DIR_NAMES.has(ent.name)) continue;
+
+            const full = path.join(dir, ent.name);
+            if (ent.isSymbolicLink()) continue;
+
+            const isAppBundle =
+              ent.isDirectory() && ent.name.toLowerCase().endsWith(".app");
+            const isInstallerName = isInstallerFileName(ent.name);
+
+            let extensionlessExecutable = false;
+            if (
+              !isInstallerName &&
+              ent.isFile() &&
+              path.extname(ent.name) === ""
+            ) {
+              const stProbe = await safeLstat(full);
+              if (
+                stProbe &&
+                !stProbe.isSymbolicLink() &&
+                (stProbe.mode & 0o111) !== 0
+              ) {
+                extensionlessExecutable = true;
+              }
+            }
+
+            const treatAsExecutable =
+              (isInstallerName && (ent.isFile() || isAppBundle)) ||
+              extensionlessExecutable;
+
+            if (treatAsExecutable) {
+              const check = isPathSafeToDelete(full, ctx);
+              if (!check.safe) continue;
+
+              const st = await safeLstat(full);
+              if (!st) continue;
+              if (!ownedByUser(st, ctx)) continue;
+              if (!isOldEnough(st.mtimeMs, def.minAgeDays)) continue;
+
+              let size = 0;
+              try {
+                size = isAppBundle || st.isDirectory()
+                  ? await measureSize(full)
+                  : st.size;
+              } catch (err) {
+                const code = (err as NodeJS.ErrnoException).code;
+                if (code === "EPERM" || code === "EACCES") {
+                  permissionDenied = true;
+                }
+                continue;
+              }
+
+              if (size <= 0) continue;
+
+              items.push({
+                id: itemIdForPath(full),
+                categoryId: def.id,
+                path: full,
+                displayName: ent.name,
+                sizeBytes: size,
+                kind: isAppBundle || st.isDirectory() ? "dir" : "file",
+                lastModified: st.mtimeMs,
+              });
+              totalBytes += size;
+
+              onProgress({
+                categoryId: def.id,
+                label: def.label,
+                bytesFound: totalBytes,
+                itemCount: items.length,
+                status: "scanning",
+              });
+              continue;
+            }
+
+            if (ent.isDirectory() && !isAppBundle && depth < maxDepth) {
+              queue.push({ dir: full, depth: depth + 1 });
+            }
+          }
+        }
+        continue;
+      }
+
+      // Root itself must be under allowlist (not used for installer roots)
       const rootCheck = isPathSafeToDelete(root, ctx);
       if (!rootCheck.safe) continue;
 
